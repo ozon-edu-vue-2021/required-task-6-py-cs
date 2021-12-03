@@ -14,6 +14,7 @@ export default {
   computed: {
     pageNumbers() {
       const { currentPage, totalPages } = this;
+      if (totalPages <= 5) return new Array(totalPages).fill(null).map((_, idx) => idx + 1);
       return new Array(5).fill(null).map((_, idx) => idx + (currentPage < 3 ? 1 : currentPage > totalPages - 2 ? (totalPages - 4) : currentPage - 2));
     }
   },

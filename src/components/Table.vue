@@ -1,7 +1,7 @@
 <script lang="jsx">
 import Pagination from './Pagination';
 import Loader from '../assets/loader.svg';
-import { PAGINATION_OPTIONS, SORT_ICONS } from '../constants';
+import { SORT_ICONS, PAGE_LIMIT, PAGINATION_OPTIONS } from '../constants';
 
 export default {
   name: 'Table',
@@ -10,43 +10,57 @@ export default {
       type: Array,
       default: () => []
     },
-    totalPages: {
-      type: Number,
-      default: 0
-    },
-    currentPage: {
-      type: Number,
-      default: 0
-    },
     pagination: {
       type: String,
-      default: PAGINATION_OPTIONS[0],
-    }
+      default: () => PAGINATION_OPTIONS[0]
+    },
   },
   data() {
     return {
+      limit: PAGE_LIMIT,
+      currentPage: 1,
       sorts: {},
       sortsOrder: [],
       filters: {},
     };
   },
   computed: {
-    visibleRows() {
-      let res = this.rows;
-      Object.entries(this.filters).forEach(([col, filterText]) => {
+    filteredRows() {
+      const { rows, filters } = this;
+      let res = [...rows];
+      Object.entries(filters).forEach(([col, filterText]) => {
         if (filterText) {
           res = res.filter(row => row[col].search(filterText) > -1)
         }
       });
-      if (this.sortsOrder.length) {
-        this.sortsOrder.forEach((col) => {
-          res = res.sort((a, b) => this.sorts[col] === 'asc' ? a[col].localeCompare(b[col]) : b[col].localeCompare(a[col]))
-        })
-      }
       return res;
-    }
+    },
+    sortedRows() {
+      const { sortsOrder, sorts, filteredRows } = this;
+      if (!sortsOrder.length) return filteredRows;
+      let res = [...filteredRows];
+      sortsOrder.forEach((col) => {
+          res = res.sort((a, b) => sorts[col] === 'asc' ? a[col].localeCompare(b[col]) : b[col].localeCompare(a[col]))
+      });
+      return res;
+    },
+    visibleRows() {
+      const { sortedRows, pagination, currentPage } = this;
+      return sortedRows
+        .slice((pagination === "Static" ? (currentPage - 1) * PAGE_LIMIT : 0), currentPage * PAGE_LIMIT + 1)
+    },
+    totalPages() {
+      return Math.ceil(this.filteredRows.length / PAGE_LIMIT);
+    },
   },
   methods: {
+    getPage(number) {
+      this.currentPage = number;
+    },
+    async getNextPage() {
+      await new Promise(res => setTimeout(res, 500));
+      this.currentPage++;
+    },
     renderRows(h, columnsOptions) {
       return this.visibleRows.map((row, index) => {
         return <tr key={row.id || index}>{...this.renderColumns(h, row, columnsOptions)}</tr>;
@@ -76,7 +90,7 @@ export default {
         {
           name: 'detect-viewport',
           value: {
-            callback: this.$listeners.getPage
+            callback: this.getNextPage
           }
         }
       ];
@@ -101,6 +115,7 @@ export default {
     },
     setFilterText(column, value) {
       this.$set(this.filters, column, value);
+      this.currentPage = 1;
     },
     renderHead(h, columnsOptions) {
       const { $style, sorts, setFilterText } = this;
@@ -142,8 +157,7 @@ export default {
     },
   },
   render(h) {
-    const { $style, totalPages, currentPage, pagination, $listeners } = this;
-    const { getPage } = $listeners;
+    const { $style, totalPages, currentPage, pagination, getPage, renderInfPager } = this;
     const columnsOptions = this.getColumnOptions();
     const columnsHead = this.renderHead(h, columnsOptions);
     const rows = this.renderRows(h, columnsOptions);
@@ -154,12 +168,10 @@ export default {
           <thead>{...columnsHead}</thead>
           <tbody>{...rows}</tbody>
         </table>
-
         {pagination === "Static"
           ? <Pagination totalPages={totalPages} currentPage={currentPage} on={{ getPage: getPage }} />
-          : currentPage < totalPages ? this.renderInfPager() : ""
+          : currentPage < totalPages ? renderInfPager() : ""
         }
-
       </div>
     );
   }

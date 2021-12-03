@@ -5,14 +5,7 @@
       
       @changePagination="changePagination"
     />
-    <Table
-      :rows="rows"
-      :total-pages="totalPages"
-      :current-page="currentPage"
-      :pagination="pagination"
-
-      @getPage="getNextPage"
-    >
+    <Table :rows="rows" :pagination="pagination">
       <Column prop="owner" title="Owner" />
       <Column prop="type" title="Type" />
       <Column prop="number" title="Number" />
@@ -25,55 +18,26 @@
 import Selector from './components/Selector.vue';
 import Table from './components/Table.vue';
 import Column from './components/Column.vue';
-import { TOTAL_COUNT, PAGE_LIMIT } from './constants';
+import { TOTAL_COUNT, PAGINATION_OPTIONS } from './constants';
 
 export default {
   name: 'App',
   components: { Selector, Table, Column },
   data() {
     return {
-      allRows: [],
       rows: [],
-      limit: PAGE_LIMIT,
-      currentPage: 1,
-      pagination: "Static",
+      pagination: PAGINATION_OPTIONS[0],
     };
   },
   async created() {
     const response = await fetch(`https://fakerapi.it/api/v1/credit_cards?_quantity=${TOTAL_COUNT}`).then(res => res.json());
-    this.allRows = response.data;
-    this.rows = await this.getPageByNumber(this.currentPage);
+    this.rows = response.data;
   },
   methods: {
     changePagination(mode) {
       this.pagination = mode
     },
-    async getPageByNumber(number) {
-      await new Promise(res => setTimeout(() => res(), 500));
-      const { limit } = this;
-      const from = (number - 1) * limit;
-      const to = number * limit
-      const slice = this.allRows.slice(from, to);
-      return slice;
-    },
-    async getStaticPage(number) {
-      this.rows = await this.getPageByNumber(number);
-      this.currentPage = number;
-    },
-    async getNextPage() {
-      console.log('getting');
-      this.currentPage++;
-      const newRows = await this.getPageByNumber(this.currentPage);
-      console.log(newRows);
-      this.rows = [...this.rows, ...newRows];
-    },
   },
-  computed: {
-    totalPages() {
-      return Math.ceil(this.allRows.length / PAGE_LIMIT);
-    },
-    // getPage: this.pagination === "Static" ? this.getStaticPage : this.getNextPage,
-  }
 };
 </script>
 

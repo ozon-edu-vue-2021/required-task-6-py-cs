@@ -11,11 +11,12 @@ export default {
   },
   render() {
       const options = PAGINATION_OPTIONS;
+      const { $style } = this;
       const { changePagination } = this.$listeners;
 
       return (
-        <label>Pagination mode:
-          <select
+        <label class={$style.selector}>Pagination mode:
+          <select class={$style.input}
             value={this.pagination}
             on={{ change: (e) => changePagination(e.target.value) }}
           >
@@ -29,6 +30,16 @@ export default {
 }
 </script>
 
-<style>
-
+<style module>
+  .selector {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 55px;
+    border-top: 1px solid #c8cacc;
+    border-bottom: 1px solid #c8cacc;
+  }
+  .input {
+    margin-left: 10px;
+  }
 </style>
