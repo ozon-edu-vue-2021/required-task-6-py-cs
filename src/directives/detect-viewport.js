@@ -78,6 +78,7 @@ const getHandler = (element) => {
 
     if ((isVisible || state.settings.emitInvisible) && isVisible !== state.isVisible) {
       /** Вызываем переданный колбэк. */
+      console.log("!!!");
       state.callback(isVisible);
 
       if (state.binding.value.once) {

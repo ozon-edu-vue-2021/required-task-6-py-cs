@@ -11,13 +11,14 @@ export default {
   },
   render() {
       const options = PAGINATION_OPTIONS;
-      const handleChangePagination = (e) => {
-        const newMode = e.target.value;
-        this.$listeners.changePagination(newMode);
-      }
+      const { changePagination } = this.$listeners;
+
       return (
         <label>Pagination mode:
-          <select value={this.pagination} onChange={handleChangePagination}>
+          <select
+            value={this.pagination}
+            on={{ change: (e) => changePagination(e.target.value) }}
+          >
             {options.map(option => (
               <option key={option} value={option}>{option}</option>
             ))}

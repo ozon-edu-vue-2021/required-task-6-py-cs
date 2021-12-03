@@ -11,7 +11,7 @@
       :current-page="currentPage"
       :pagination="pagination"
 
-      @getPage="getStaticPage"
+      @getPage="getNextPage"
     >
       <Column prop="owner" title="Owner" />
       <Column prop="type" title="Type" />
@@ -45,7 +45,7 @@ export default {
     this.rows = await this.getPageByNumber(this.currentPage);
   },
   methods: {
-    changePagination: (mode) => {
+    changePagination(mode) {
       this.pagination = mode
     },
     async getPageByNumber(number) {
@@ -61,9 +61,11 @@ export default {
       this.currentPage = number;
     },
     async getNextPage() {
+      console.log('getting');
       this.currentPage++;
-      const newRows = await this.getStaticPage(this.currentPage);
-      this.rows = [...this.rows, newRows];
+      const newRows = await this.getPageByNumber(this.currentPage);
+      console.log(newRows);
+      this.rows = [...this.rows, ...newRows];
     },
   },
   computed: {

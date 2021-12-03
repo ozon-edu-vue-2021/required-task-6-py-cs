@@ -1,9 +1,7 @@
 <script lang="jsx">
 import Pagination from './Pagination';
-import Dropdown from './Dropdown';
 import Loader from '../assets/loader.svg';
-import { PAGINATION_OPTIONS } from '../constants';
-import orderBy from 'lodash';
+import { PAGINATION_OPTIONS, SORT_ICONS } from '../constants';
 
 export default {
   name: 'Table',
@@ -27,32 +25,30 @@ export default {
   },
   data() {
     return {
-      sortProp: '',
-      sortDirection: '',
-      filterProp: '',
-      filterText: ''
+      sorts: {},
+      sortsOrder: [],
+      filters: {},
     };
   },
   computed: {
-    sortedRows() {
-      let res;
-
-      if (!this.sortProp) {
-        res =  this.rows;
+    visibleRows() {
+      let res = this.rows;
+      Object.entries(this.filters).forEach(([col, filterText]) => {
+        if (filterText) {
+          res = res.filter(row => row[col].search(filterText) > -1)
+        }
+      });
+      if (this.sortsOrder.length) {
+        this.sortsOrder.forEach((col) => {
+          res = res.sort((a, b) => this.sorts[col] === 'asc' ? a[col].localeCompare(b[col]) : b[col].localeCompare(a[col]))
+        })
       }
-
-      res = orderBy(this.rows, [this.sortProp], [this.sortDirection]);
-
-      if(this.filterText) {
-        res = res.filter(row => row[this.filterProp].search(this.filterText) > -1)
-      }
-
       return res;
     }
   },
   methods: {
     renderRows(h, columnsOptions) {
-      return this.sortedRows.map((row, index) => {
+      return this.visibleRows.map((row, index) => {
         return <tr key={row.id || index}>{...this.renderColumns(h, row, columnsOptions)}</tr>;
       });
     },
@@ -94,46 +90,50 @@ export default {
       );
     },
     toggleSort(prop) {
-      this.sortProp = prop;
-      this.sortDirection = (this.sortDirection === 'desc' || !this.sortDirection) ? 'asc' : 'desc';
+      const current = this.sorts[prop];
+      const sortOptions = Object.keys(SORT_ICONS);
+      const currentIdx = sortOptions.indexOf(current);
+      const nextIdx = (currentIdx + 1) % sortOptions.length;
+      if (nextIdx === 1) this.sortsOrder.push(prop);
+      if (nextIdx === 0) this.sortsOrder = this.sortsOrder.filter((el) => el !== prop);
+      const next = sortOptions[nextIdx];
+      this.sorts[prop] = next;
     },
-    openFilterTooltip(prop = '') {
-      this.filterProp = prop;
-      this.filterText = '';
-    },
-    setFilterText(e) {
-      this.filterText = e.target.value;
+    setFilterText(column, value) {
+      this.$set(this.filters, column, value);
     },
     renderHead(h, columnsOptions) {
-      const { $style, sortProp, sortDirection, filterProp, filterText } = this;
+      const { $style, sorts, setFilterText } = this;
 
       return columnsOptions.map((column) => {
+        const { prop } = column;
         const renderedTitle = column.scopedSlots.title ? column.scopedSlots.title() : column.title;
-        let sortIcon = 'sort';
 
-        if (sortProp === column.prop) {
-          sortIcon = sortDirection === 'asc' ? 'sort-amount-down' : 'sort-amount-up';
+        if (!sorts[prop]) {
+          this.$set(sorts, prop, 'none');
         }
+
+        const sortIcon = SORT_ICONS[sorts[prop]] || 'sort';
 
         return (
           <th key={column.prop} class={$style.headerCell}>
-            <div class={$style.headerCellContent}>
+            <div class={$style.headerContent}>
               <span>{renderedTitle}</span>
               <font-awesome-icon
                 class={$style.sortIcon}
                 icon={sortIcon}
-                on={{ click: () => this.toggleSort(column.prop) }}
+                on={{ click: () => this.toggleSort(prop) }}
               />
-              <Dropdown
-                columnProp={column.prop}
-                shown={column.prop === filterProp}
-                filterText={filterText}
-
-                on={{
-                  openFilterTooltip: () => this.openFilterTooltip(column.prop),
-                  closeFilterTooltip: () => this.openFilterTooltip(),
-                  setFilterText: this.setFilterText,
-                }}
+            </div>
+            <div class={$style.headerContent}>
+              <input 
+                value={this.filters[prop]}
+                on={{ input: (e) => setFilterText(prop, e.target.value) }}
+              />
+              <font-awesome-icon
+                class={$style.sortIcon}
+                icon="trash"
+                on={{ click: () => setFilterText(prop, '') }}
               />
             </div>
           </th>
@@ -157,7 +157,7 @@ export default {
 
         {pagination === "Static"
           ? <Pagination totalPages={totalPages} currentPage={currentPage} on={{ getPage: getPage }} />
-          : this.renderInfPager()
+          : currentPage < totalPages ? this.renderInfPager() : ""
         }
 
       </div>
@@ -173,7 +173,6 @@ export default {
     width: 100%;
   }
 
-
   .cell {
     text-align: left;
     border-bottom: 1px solid #c8cacc;
@@ -183,6 +182,11 @@ export default {
   .headerCell {
     composes: cell;
     background: #c7cbcb;
+  }
+
+  .headerContent {
+    display: flex;
+    gap: 10px;
   }
 
   .infPager {
