@@ -3,21 +3,23 @@ import { PAGINATION_OPTIONS } from '../constants';
 
 export default {
   name: "Selector",
+  functional: true,
   props: {
     pagination: {
       type: String,
       default: "Static"
     },
+    changePagination: {},
   },
-  render() {
+  render(h, context) {
       const options = PAGINATION_OPTIONS;
-      const { $style } = this;
-      const { changePagination } = this.$listeners;
+      const { props, $style } = context;
+      const { pagination, changePagination } = props;
 
       return (
         <label class={$style.selector}>Pagination mode:
           <select class={$style.input}
-            value={this.pagination}
+            value={pagination}
             on={{ change: (e) => changePagination(e.target.value) }}
           >
             {options.map(option => (

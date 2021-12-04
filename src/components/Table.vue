@@ -169,7 +169,7 @@ export default {
           <tbody>{...rows}</tbody>
         </table>
         {pagination === "Static"
-          ? <Pagination totalPages={totalPages} currentPage={currentPage} on={{ getPage: getPage }} />
+          ? <Pagination totalPages={totalPages} currentPage={currentPage} getPage={getPage} />
           : currentPage < totalPages ? renderInfPager() : ""
         }
       </div>

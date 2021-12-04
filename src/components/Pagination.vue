@@ -1,6 +1,7 @@
 <script lang="jsx">
 export default {
   name: 'Pagination',
+  functional: true,
   props: {
     totalPages: {
       type: Number,
@@ -9,18 +10,16 @@ export default {
     currentPage: {
       type: Number,
       default: 0
-    }
+    },
+    getPage: {},
   },
-  computed: {
-    pageNumbers() {
-      const { currentPage, totalPages } = this;
-      if (totalPages <= 5) return new Array(totalPages).fill(null).map((_, idx) => idx + 1);
-      return new Array(5).fill(null).map((_, idx) => idx + (currentPage < 3 ? 1 : currentPage > totalPages - 2 ? (totalPages - 4) : currentPage - 2));
-    }
-  },
-  render() {
-    const { $style, pageNumbers, currentPage, totalPages, $listeners } = this;
-    const { getPage } = $listeners;
+  render(h, context) {
+    const { $style, props } = context;
+    const { getPage, totalPages, currentPage } = props;
+
+    const pageNumbers = totalPages <= 5
+      ? new Array(totalPages).fill(null).map((_, idx) => idx + 1)
+      : new Array(5).fill(null).map((_, idx) => idx + (currentPage < 3 ? 1 : currentPage > totalPages - 2 ? (totalPages - 4) : currentPage - 2));
 
     return (
       <div class={$style.pagination}>

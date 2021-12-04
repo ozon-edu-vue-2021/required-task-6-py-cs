@@ -3,7 +3,7 @@
     <Selector
       :pagination="pagination"
       
-      @changePagination="changePagination"
+      :changePagination="changePagination"
     />
     <Table :rows="rows" :pagination="pagination">
       <Column prop="owner" title="Owner" />
