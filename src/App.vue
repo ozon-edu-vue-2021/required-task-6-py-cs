@@ -1,16 +1,23 @@
 <template>
   <div id="app">
-    <Selector
-      :pagination="pagination"
-      
-      :changePagination="changePagination"
-    />
-    <Table :rows="rows" :pagination="pagination">
-      <Column prop="owner" title="Owner" />
-      <Column prop="type" title="Type" />
-      <Column prop="number" title="Number" />
-      <Column prop="expiration" title="Exp. Date" />
-    </Table>
+    <label for="test">
+      <input id="test" type="checkbox" v-model="testMode" />
+      Test mode
+    </label>
+    <Test v-if="testMode" />
+    <div v-else>
+      <Selector
+        :pagination="pagination"
+        
+        :changePagination="changePagination"
+      />
+      <Table :rows="rows" :pagination="pagination">
+        <Column prop="owner" title="Owner" />
+        <Column prop="type" title="Type" />
+        <Column prop="number" title="Number" />
+        <Column prop="expiration" title="Exp. Date" />
+      </Table>
+    </div>
   </div>
 </template>
 
@@ -18,15 +25,17 @@
 import Selector from './components/Selector.vue';
 import Table from './components/Table.vue';
 import Column from './components/Column.vue';
+import Test from './components/Test.vue';
 import { TOTAL_COUNT, PAGINATION_OPTIONS } from './constants';
 
 export default {
   name: 'App',
-  components: { Selector, Table, Column },
+  components: { Selector, Table, Column, Test },
   data() {
     return {
       rows: [],
       pagination: PAGINATION_OPTIONS[0],
+      testMode: false,
     };
   },
   async created() {

@@ -8,16 +8,17 @@
       </th>
     </thead>
     <tbody>
-      <tr v-for="(row, rowIndex) in rows" :key="rowIndex">
-        <td v-for="(col, colIndex) in row" :key="colIndex" class="cell">{{col}}</td>
-      </tr>
+      <SFCRow v-for="(row, rowIndex) in rows" :key="rowIndex" :row="row" />
     </tbody>
   </table>  
 </template>
 
 <script>
+import SFCRow from './SFCRow.vue';
+
 export default {
   name: 'SFCTable',
+  components: { SFCRow },
   props: {
     headers: {
       type: Array,
@@ -37,20 +38,16 @@ export default {
     margin: 8px;
     width: 100%;
   }
+ 
+.headerCell {
+  text-align: left;
+  border-bottom: 1px solid #c8cacc;
+  padding: 1rem 1rem;
+  background: #c7cbcb;
+}
 
-  .cell, 
-  .headerCell {
-    text-align: left;
-    border-bottom: 1px solid #c8cacc;
-    padding: 1rem 1rem;
-  }
-
-  .headerCell {
-    background: #c7cbcb;
-  }
-
-  .headerContent {
-    display: flex;
-    gap: 10px;
-  }
+.headerContent {
+  display: flex;
+  gap: 10px;
+}
 </style>

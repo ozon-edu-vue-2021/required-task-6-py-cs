@@ -9,10 +9,10 @@
 </template>
 
 <script>
-import FuncTable from './components/test/FuncTable.vue';
-import SFCTable from './components/test/SFCTable.vue';
+import FuncTable from './test/FuncTable.vue';
+import SFCTable from './test/SFCTable.vue';
 
-import { TOTAL_COUNT } from './constants';
+import { TOTAL_COUNT } from '../constants';
 
 export default {
   name: 'App',
@@ -30,7 +30,7 @@ export default {
     const { data } = response;
     this.headers = Object.keys(data[0]);
     const rows = data.map(row => Object.values(row));
-    this.rows = new Array(100).fill(rows).flat();
+    this.rows = new Array(10).fill(rows).flat();
   },
 };
 </script>

@@ -1,6 +1,5 @@
 import Vue from 'vue';
 import App from './App.vue';
-// import Test from './Test.vue';
 import { library } from '@fortawesome/fontawesome-svg-core';
 import {
   faSortAmountUp,
@@ -14,7 +13,6 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { Directive } from '@/directives/detect-viewport';
 import VueVirtualScroller from 'vue-virtual-scroller'
 
-import 'v-tooltip/dist/v-tooltip.css'
 import 'vue-virtual-scroller/dist/vue-virtual-scroller.css'
 
 

@@ -1,4 +1,6 @@
 <script lang="jsx">
+import FuncRow from './FuncRow'
+
 export default {
   name: 'FuncTable',
   functional: true,
@@ -17,15 +19,7 @@ export default {
           ))}
         </thead>
         <tbody>
-          {rows.map((row, rowIndex) => (
-            <tr key={rowIndex}>
-              {row.map((col, colIndex) => (
-                <td key={colIndex} class={$style.cell}>
-                  { col }
-                </td>
-              ))}
-            </tr>
-          ))}
+          {rows.map((row, rowIndex) => (<FuncRow row={row} key={rowIndex} />))}
         </tbody>
       </table>
     );
@@ -40,14 +34,10 @@ export default {
     width: 100%;
   }
 
-  .cell {
+  .headerCell {
     text-align: left;
     border-bottom: 1px solid #c8cacc;
     padding: 1rem 1rem;
-  }
-
-  .headerCell {
-    composes: cell;
     background: #c7cbcb;
   }
 
