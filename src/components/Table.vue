@@ -2,6 +2,7 @@
 import Pagination from './Pagination';
 import Loader from '../assets/loader.svg';
 import { SORT_ICONS, PAGE_LIMIT, PAGINATION_OPTIONS } from '../constants';
+import { compare } from '../helpers/compare';
 
 export default {
   name: 'Table',
@@ -38,11 +39,10 @@ export default {
     sortedRows() {
       const { sortsOrder, sorts, filteredRows } = this;
       if (!sortsOrder.length) return filteredRows;
-      let res = [...filteredRows];
-      sortsOrder.forEach((col) => {
-          res = res.sort((a, b) => sorts[col] === 'asc' ? a[col].localeCompare(b[col]) : b[col].localeCompare(a[col]))
-      });
-      return res;
+      const sortOptions = sortsOrder.reduceRight((acc, el) => {
+        return {...acc, [el]: sorts[el] }
+      }, {});
+      return [...filteredRows].sort(compare(sortOptions));
     },
     visibleRows() {
       const { sortedRows, pagination, currentPage } = this;
